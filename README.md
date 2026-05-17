@@ -73,46 +73,20 @@ None yet, unfortunately. I plan to have some debug mode.
 
 ## Installation
 
-First, install the necessary packages to compile aptparu
 ```
-pacman -S meson ninja git gcc
-```
-
-Then, clone the repo
-```
-$ git clone https://github.com/bahmoudd/aptparu/
-```
-
-Enter the directory
-```
-$ cd aptparu
-```
-
-Then, compile the package:
-```
-$ meson setup build && cd build
-```
-
-Then, compile and install it:
-```
-ninja && ninja install
+sudo pacman -S meson ninja git gcc
+git clone https://github.com/bahmoudd/aptparu.git
+cd aptparu
+meson setup build --Dbuildtype=release
+cd build && ninja && sudo ninja install
 ```
 
 Make sure not to delete the build directory so you can uninstall later on if you wish.
 
 ## Uninstallation
 
-First, enter the build directory:
 ```
-$ cd ~/aptparu/build
-```
-
-Then uninstall:
-```
-ninja uninstall
-```
-
-Clean up residue folders:
-```
-$ rm -rf ~/aptparu
+cd ~/aptparu/build
+sudo ninja uninstall
+rm -rf ~/aptparu
 ```

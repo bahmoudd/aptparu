@@ -2,8 +2,6 @@
 *.o
 *.a
 build/*
-build/CMakeFiles
-build/aptparu
 .clangd
 .cache/*
 subprojects/argparse/*
