@@ -4,4 +4,6 @@
 build/*
 build/CMakeFiles
 build/aptparu
-src/.clangd
+.clangd
+.cache/*
+subprojects/argparse/*

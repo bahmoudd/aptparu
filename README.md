@@ -10,6 +10,8 @@ This project is written solely in C++.
 
 ## Note
 
+Note that paru is an optional dependency. Compiling without paru installed will make aptparu use pacman as a backend. To be able to access the AUR with aptparu, paru must be installed before compiling aptparu.
+
 This project is not affiliated with the aptpac repo or any other similarly-named projects in any way. 
 
 ## Planned usage
@@ -73,7 +75,7 @@ None yet, unfortunately. I plan to have some debug mode.
 
 First, install the necessary packages to compile aptparu
 ```
-pacman -S cmake base-devel git gcc
+pacman -S meson ninja git gcc
 ```
 
 Then, clone the repo
@@ -81,19 +83,19 @@ Then, clone the repo
 $ git clone https://github.com/bahmoudd/aptparu/
 ```
 
-Enter the directory and create a separate build directory
+Enter the directory
 ```
-$ cd aptparu && mkdir build && cd build
+$ cd aptparu
 ```
 
 Then, compile the package:
 ```
-$ cmake -DCMAKE_BUILD_TYPE=Release .. && make
+$ meson setup build && cd build
 ```
 
-Then, install it:
+Then, compile and install it:
 ```
-make install
+ninja && ninja install
 ```
 
 Make sure not to delete the build directory so you can uninstall later on if you wish.
@@ -107,10 +109,10 @@ $ cd ~/aptparu/build
 
 Then uninstall:
 ```
-make uninstall
+ninja uninstall
 ```
 
 Clean up residue folders:
 ```
-rm -rf ~/aptparu
+$ rm -rf ~/aptparu
 ```
