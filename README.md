@@ -69,7 +69,7 @@ or the package(s) needing them were removed.
 
 ## Planned configs
 
-None yet, unfortunately. I plan to have some debug mode.
+Debug mode! In order to enable debug mode, you must run `meson setup build -Dbuildtype=debugoptimized` instead of the meson command shown below.
 
 ## Installation
 
@@ -77,7 +77,7 @@ None yet, unfortunately. I plan to have some debug mode.
 sudo pacman -S meson ninja git gcc
 git clone https://github.com/bahmoudd/aptparu.git
 cd aptparu
-meson setup build --Dbuildtype=release
+meson setup build -Dbuildtype=release
 cd build && ninja && sudo ninja install
 ```
 
