@@ -4,4 +4,5 @@
 build/*
 .clangd
 .cache/*
+subprojects/argparse
 subprojects/argparse/*
