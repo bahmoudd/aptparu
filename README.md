@@ -17,59 +17,40 @@ This project is not affiliated with the aptpac repo or any other similarly-named
 ## Planned usage
 
 ```
-USAGE
-    aptpac [option] [package]
-    EXAMPLE: aptparu search clang
+A wrapper for paru/pacman for ease of use
 
-AVAILABLE OPTIONS
-    install
-        Install a package
-    install-local
-        Install a local package
-    remove
-        Remove a package
-    purge
-        Removes a package and prevents the creation of backup configuration files
-    search
-        Search for a package
-    find
-        Find an installed package
-    update
-        Updates lists of available packages but does not install/update any packages
-    upgrade
-        Updates a local package
-    full-upgrade
-        Update + Upgrade
-    autoclean
-        Cleans up all local caches
-    clean
-        Same as autoclean
-    autoremove  
-        Removes orphaned* packages
-    show 
-        Shows information about a package that is installed
-    show-all
-        Shows information about a package that may not be installed
-    list-installed
-        Lists all installed packages
-    list-detailed
-        Lists all installed packages in great detail
-    help 
-        Shows this help
-    version 
-        Shows version and about information
-    
+./aptparu [OPTIONS] [SUBCOMMANDS]
 
-options are not case-sensitive 
+OPTIONS:
+  -h,     --help              Print this help message and exit
 
-* - Orphaned packages are packages that were installed to satisfy the dependencies
-of another application and are now no longer needed as dependencies were changed 
-or the package(s) needing them were removed.
+SUBCOMMANDS:
+  install                     Install a package
+  install-local               Install a local package
+  remove                      Remove a package
+  purge                       Removes a pacakage and prevents the creation of backup
+                              configuration files
+  search                      Search for a package
+  find                        Find an installed package
+  update                      Updates lists of available packages but does not install/update
+                              any packages
+  upgrade                     Updates a local package
+  full-upgrade                Update + Upgrade
+  autoclean                   Cleans up all local caches
+  clean                       Same as autoclean
+  autoremove                  Removes orphaned packages
+  show                        Shows information about a package that is installed
+  show-all                    Shows information about a package that may not be installed
+  list-installed              Lists all installed packages
+  list-detailed               Lists all installed packages in great detail
+  help                        Shows this help
+  version                     Shows version and about information
+
 ```
 
 ## Planned configs
 
-Debug mode! In order to enable debug mode, you must run `meson setup build -Dbuildtype=debugoptimized` instead of the meson command shown below.
+Debug mode! In order to enable debug mode, you must run `meson setup build -Dbuildtype=debugoptimized` instead of the meson command shown below. Nothing for actual configuration files yet :(
 
 ## Installation
 
