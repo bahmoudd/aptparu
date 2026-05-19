@@ -4,5 +4,13 @@
 build/*
 .clangd
 .cache/*
-subprojects/argparse
+subprojects/CLI11-2.6.2/*
+subprojects/packagecache/*
 subprojects/argparse/*
+.vscode/*
+
+build
+subprojects/CLI11-2.6.2
+subprojects/packagecache
+subprojects/.wraplock
+.vscode

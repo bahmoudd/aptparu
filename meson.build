@@ -1,10 +1,8 @@
 project('aptparu', 'cpp', default_options : 'cpp_std=c++17')
 
-cmake = import('cmake')
 
 fmt_dep = dependency('fmt')
-argparse_proj = cmake.subproject('argparse', cmake_options : '-Wno-dev')
-argparse_dep = argparse_proj.dependency('argparse')
+cli11_dep = dependency('CLI11')
 
 buildtype = get_option('buildtype')
 
@@ -23,4 +21,4 @@ else
     add_project_arguments('-DBACKEND_PATH="@0@"'.format(pacman.full_path()), language : 'cpp')
 endif
 
-executable('aptparu', 'src/main.cpp', dependencies: [fmt_dep, argparse_dep], install : true)
+executable('aptparu', 'src/main.cpp', dependencies: [fmt_dep, cli11_dep], install : true)

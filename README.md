@@ -29,7 +29,7 @@ AVAILABLE OPTIONS
     remove
         Remove a package
     purge
-        Removes a package and prevents the creation of backup configuration files*
+        Removes a package and prevents the creation of backup configuration files
     search
         Search for a package
     find
