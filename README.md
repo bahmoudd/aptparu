@@ -17,7 +17,6 @@ This project is not affiliated with the aptpac repo or any other similarly-named
 ## Planned usage
 
 ```
-
 A wrapper for paru/pacman for ease of use
 
 ./aptparu [OPTIONS] [SUBCOMMANDS]
@@ -26,11 +25,16 @@ OPTIONS:
   -h,     --help              Print this help message and exit
 
 SUBCOMMANDS:
+  download                    Downloads a package without installing it
   install                     Install a package
   install-local               Install a local package
   remove                      Remove a package
   purge                       Removes a pacakage and prevents the creation of backup
                               configuration files
+  remove-only                 Removes a package which is required by another package without
+                              deleting the dependant package
+  recursive-remove            Removes a package alongside all of its dependencies and all
+                              packages that depend on the target package
   search                      Search for a package
   find                        Find an installed package
   update                      Updates lists of available packages but does not install/update

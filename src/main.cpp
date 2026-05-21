@@ -31,7 +31,6 @@ int command_execute(const string_view& subcommand,
         return 1;
     }
 
-
     if (packages_needed)
         command = fmt::format("{} {} {}", backend_path, arguments, fmt::join(packages, " "));
     else
@@ -52,10 +51,13 @@ int main(int argc, char** argv) {
     std::vector<string> packages = {};
 
     CLI::App app{"A wrapper for paru/pacman for ease of use"};
+    CLI::App* download = app.add_subcommand("download", "Downloads a package without installing it");
     CLI::App* install = app.add_subcommand("install", "Install a package");
     CLI::App* install_local = app.add_subcommand("install-local", "Install a local package");
     CLI::App* remove = app.add_subcommand("remove", "Remove a package");
     CLI::App* purge = app.add_subcommand("purge", "Removes a pacakage and prevents the creation of backup configuration files");
+    CLI::App* remove_only = app.add_subcommand("remove-only", "Removes a package which is required by another package without deleting the dependant package");
+    CLI::App* recursive_remove = app.add_subcommand("recursive-remove", "Removes a package alongside all of its dependencies and all packages that depend on the target package");
     CLI::App* search = app.add_subcommand("search", "Search for a package");
     CLI::App* find = app.add_subcommand("find", "Find an installed package");
     CLI::App* update = app.add_subcommand("update", "Updates lists of available packages but does not install/update any packages");
@@ -72,10 +74,13 @@ int main(int argc, char** argv) {
     CLI::App* help = app.add_subcommand("help", "Shows this help")->silent();
     CLI::App* version = app.add_subcommand("version", "Shows version and about information")->silent();
     
+    download->add_option("packages", packages);
     install->add_option("packages", packages);
     install_local->add_option("packages", packages);
     remove->add_option("packages", packages);
     purge->add_option("packages", packages);
+    remove_only->add_option("packages", packages);
+    recursive_remove->add_option("packages", packages);
     search->add_option("packages", packages);
     find->add_option("packages", packages);
     upgrade->add_option("packages", packages);
@@ -87,7 +92,9 @@ int main(int argc, char** argv) {
     CLI11_PARSE(app, argc, argv);
     string command;
     
-    if (*install)  
+    if (*download)
+        return command_execute("download", "-Sw", packages, "package");
+    else if (*install)  
         return command_execute("install", "-S", packages, "package");
     else if (*install_local) 
         return command_execute("install-local", "-U", packages, "package");
@@ -95,6 +102,10 @@ int main(int argc, char** argv) {
         return command_execute("remove", "-Rs", packages, "package");
     else if (*purge)
         return command_execute("purge", "-Rn", packages, "package");
+    else if (*remove_only)
+        return command_execute("remove-only", "-Rdd", packages, "package");
+    else if (*recursive_remove)
+        return command_execute("recursive-remote", "-Rsc", packages, "package");
     else if (*search)
         return command_execute("search", "-Ss", packages, "search string");
     else if (*find)
@@ -142,4 +153,3 @@ int main(int argc, char** argv) {
 
     return 0;
 }
-
