@@ -118,7 +118,7 @@ int main(int argc, char** argv) {
     else if (*list_detailed)
         return command_execute("list-detailed", "-Qi", packages, "", false);
        
-    if (*help) {
+    if (*help or argc == 1) {
         fmt::println("{}", app.help());
     } else if (*version) {
         fmt::println("{}", fmt::styled(" APTPAC", fmt::emphasis::bold));
