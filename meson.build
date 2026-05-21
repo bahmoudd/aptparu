@@ -1,6 +1,5 @@
 project('aptparu', 'cpp', default_options : 'cpp_std=c++17')
 
-
 fmt_dep = dependency('fmt')
 cli11_dep = dependency('CLI11')
 

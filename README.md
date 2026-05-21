@@ -17,6 +17,7 @@ This project is not affiliated with the aptpac repo or any other similarly-named
 ## Planned usage
 
 ```
+
 A wrapper for paru/pacman for ease of use
 
 ./aptparu [OPTIONS] [SUBCOMMANDS]
@@ -34,6 +35,7 @@ SUBCOMMANDS:
   find                        Find an installed package
   update                      Updates lists of available packages but does not install/update
                               any packages
+  force-update                Forces update even if lists of packages appear up to date
   upgrade                     Updates a local package
   full-upgrade                Update + Upgrade
   autoclean                   Cleans up all local caches
@@ -46,6 +48,9 @@ SUBCOMMANDS:
   help                        Shows this help
   version                     Shows version and about information
 
+Errors may be styled differently depending on whether the error is handled by
+pacman/paru or aptparu. Additionally, autoremove may need to be run with sudo
+even with paru installed because of some weird bug with paru.
 ```
 
 ## Planned configs
