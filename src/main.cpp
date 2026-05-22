@@ -70,6 +70,7 @@ int main(int argc, char** argv) {
     CLI::App* show = app.add_subcommand("show", "Shows information about a package that is installed");
     CLI::App* show_all = app.add_subcommand("show-all", "Shows information about a package that may not be installed");
     CLI::App* list_installed = app.add_subcommand("list-installed", "Lists all installed packages");
+    CLI::App* list = app.add_subcommand("list", "Same as list-installed");
     CLI::App* list_detailed = app.add_subcommand("list-detailed", "Lists all installed packages in great detail");
     CLI::App* help = app.add_subcommand("help", "Shows this help")->silent();
     CLI::App* version = app.add_subcommand("version", "Shows version and about information")->silent();
@@ -124,7 +125,7 @@ int main(int argc, char** argv) {
         return command_execute("full-upgrade", "-Syu", packages, "", false);
     else if (*autoclean or *clean)
         return command_execute("autoclean", "-Scc", packages, "", false);
-    else if (*list_installed)
+    else if (*list_installed or *list)
         return command_execute("list-installed", "-Qqe", packages, "", false);
     else if (*list_detailed)
         return command_execute("list-detailed", "-Qi", packages, "", false);
