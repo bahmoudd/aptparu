@@ -8,54 +8,30 @@
 #include <fmt/ranges.h>
 #include <CLI/CLI.hpp>
 
+#include "./main.hpp"
+
 using std::string;
 using std::string_view;
 
 inline constexpr string_view backend_path = BACKEND_PATH;
 inline constexpr bool debug_mode = DEBUG_MODE;
 
-int command_execute(const string_view& subcommand, 
-                    const string& arguments, 
-                    const std::vector<string>& packages, 
-                    const string& potential_error_cause,
-                    bool packages_needed = true) {
-    
-    string command = "";
-    if (packages.empty() and packages_needed) {
-        fmt::print(stderr,
-                "{0} '{1}' option passed but no {2}(s) provided!\n",
-                fmt::styled("ERROR:", fmt::fg(fmt::color::red) | fmt::emphasis::bold),
-                subcommand,
-                potential_error_cause);
-                
-        return 1;
-    }
-
-    if (packages_needed)
-        command = fmt::format("{} {} {}", backend_path, arguments, fmt::join(packages, " "));
-    else
-        command = fmt::format("{} {}", backend_path, arguments);
-
-    if (debug_mode)
-        fmt::println("Command being run is {}", command);
-
-    return system(command.c_str());
-}
-
 int main(int argc, char** argv) {
     if (debug_mode) {
-        fmt::println("INFO: Debug mode activated.");
-        fmt::println("INFO: Using path: {0}", backend_path);
+        log_info("Debug mode activated.");
+        log_debug(fmt::format("Macro BACKEND_PATH set to: {}", backend_path));
     }
 
     std::vector<string> packages = {};
+    std::vector<string> ignore_packages = {};
 
     CLI::App app{"A wrapper for paru/pacman for ease of use"};
     CLI::App* download = app.add_subcommand("download", "Downloads a package without installing it");
     CLI::App* install = app.add_subcommand("install", "Install a package");
     CLI::App* install_local = app.add_subcommand("install-local", "Install a local package");
     CLI::App* remove = app.add_subcommand("remove", "Remove a package");
-    CLI::App* purge = app.add_subcommand("purge", "Removes a pacakage and prevents the creation of backup configuration files");
+    CLI::App* purge = app.add_subcommand("purge", "Removes a package, dependencies not required by any other package, and prevents the creation of backup configuration files");
+    CLI::App* remove_group = app.add_subcommand("remove-group", "Removes a package group e.g. gnome");
     CLI::App* remove_only = app.add_subcommand("remove-only", "Removes a package which is required by another package without deleting the dependant package");
     CLI::App* recursive_remove = app.add_subcommand("recursive-remove", "Removes a package alongside all of its dependencies and all packages that depend on the target package");
     CLI::App* search = app.add_subcommand("search", "Search for a package");
@@ -75,11 +51,15 @@ int main(int argc, char** argv) {
     CLI::App* help = app.add_subcommand("help", "Shows this help")->silent();
     CLI::App* version = app.add_subcommand("version", "Shows version and about information")->silent();
     
+    if (debug_mode)
+        log_debug("Successfully initialised application and subcommands!");
+    
     download->add_option("packages", packages);
     install->add_option("packages", packages);
     install_local->add_option("packages", packages);
     remove->add_option("packages", packages);
     purge->add_option("packages", packages);
+    remove_group->add_option("packages", packages);
     remove_only->add_option("packages", packages);
     recursive_remove->add_option("packages", packages);
     search->add_option("packages", packages);
@@ -90,19 +70,29 @@ int main(int argc, char** argv) {
     app.footer("Errors may be styled differently depending on whether the error is handled by pacman/paru or aptparu. \
         Additionally, autoremove may need to be run with sudo even with paru installed because of some weird bug with paru.");
     
+    app.allow_windows_style_options(false);
+    
+    install->add_option("--ignore", ignore_packages, "Ignore certain packages when installing/upgrading");
+    upgrade->add_option("--ignore", ignore_packages, "Ignore certain packages when installing/upgrading");
+    full_upgrade->add_option("--ignore", ignore_packages, "Ignore certain packages when installing/upgrading");
+
     CLI11_PARSE(app, argc, argv);
-    string command;
+    if (debug_mode) {
+        log_debug(fmt::format("packages set to: {}", packages));
+        log_debug(fmt::format("ignore_packages set to: {}", ignore_packages));
+    } 
+    string command = "";
     
     if (*download)
         return command_execute("download", "-Sw", packages, "package");
-    else if (*install)  
-        return command_execute("install", "-S", packages, "package");
     else if (*install_local) 
         return command_execute("install-local", "-U", packages, "package");
     else if (*remove) 
         return command_execute("remove", "-Rs", packages, "package");
     else if (*purge)
-        return command_execute("purge", "-Rn", packages, "package");
+        return command_execute("purge", "-Rns", packages, "package");
+    else if (*remove_group)
+        return command_execute("remove-group", "-Rsu", packages, "package");
     else if (*remove_only)
         return command_execute("remove-only", "-Rdd", packages, "package");
     else if (*recursive_remove)
@@ -111,8 +101,6 @@ int main(int argc, char** argv) {
         return command_execute("search", "-Ss", packages, "search string");
     else if (*find)
         return command_execute("find", "-F", packages, "search string");
-    else if (*upgrade)
-        return command_execute("upgrade", "-Su", packages, "package");
     else if (*show)
         return command_execute("show", "-Qi", packages, "package");
     else if (*show_all)
@@ -120,8 +108,6 @@ int main(int argc, char** argv) {
     else if (*update)
         return command_execute("update", "-Sy", packages, "", false);
     else if (*force_update)
-        return command_execute("force-update", "-Syy", packages, "", false);
-    else if (*full_upgrade)
         return command_execute("full-upgrade", "-Syu", packages, "", false);
     else if (*autoclean or *clean)
         return command_execute("autoclean", "-Scc", packages, "", false);
@@ -129,9 +115,12 @@ int main(int argc, char** argv) {
         return command_execute("list-installed", "-Qqe", packages, "", false);
     else if (*list_detailed)
         return command_execute("list-detailed", "-Qi", packages, "", false);
-       
+
     if (*help or argc == 1) {
-        fmt::println("{}", app.help());
+        fmt::println(stderr,
+                    "{} \aNo subcommand provided! (use -h for help)",
+                    fmt::styled("ERROR:", fmt::fg(fmt::color::red) | fmt::emphasis::bold));
+        return 1;
     } else if (*version) {
         fmt::println("{}", fmt::styled(" APTPAC", fmt::emphasis::bold));
         fmt::println("{}", fmt::styled("========", fmt::emphasis::bold));
@@ -142,15 +131,81 @@ int main(int argc, char** argv) {
 
         fmt::println("\nLicence: MIT\nCopyright (c) 2026 bahmoudd");
     }
-
-    if (*autoremove) {
-        if (system("test -z \"$(paru -Qdtq)\"") == 0)
-            fmt::println("Nothing to autoremove.");
-        else if (backend_path == "/usr/bin/paru") 
+    if (*install) {
+        string to_run = join_command_and_packages_and_ignore_packages(backend_path, "-S", packages, ignore_packages);
+        system(to_run.c_str()); 
+    } else if (*upgrade) {
+        string to_run = join_command_and_packages_and_ignore_packages(backend_path, "-Su", packages, ignore_packages);
+        system(to_run.c_str());
+    } else if (*full_upgrade) {
+        string to_run = join_command_and_packages_and_ignore_packages(backend_path, "-Syu", packages, ignore_packages);
+        system(to_run.c_str());
+    } else if (*autoremove) {
+        if (backend_path == "/usr/bin/paru") {
+            if (system("test -z \"$(paru -Qdtq)\"") == 0)
+                fmt::println("Nothing to autoremove.");
             return system("/usr/bin/paru -Qdtq | pacman -Rs -");
-        else
+        } else {
+            if (system("test -z \"$(pacman -Qdtq)\"") == 0)
+                fmt::println("Nothing to autoremove.");
+            
             return system("/usr/bin/pacman -Qdtq | pacman -Rs -");
+        }
     }
 
     return 0;
+}
+
+int command_execute(const string_view& subcommand, 
+                    const string& arguments, 
+                    const std::vector<string>& packages, 
+                    const string& potential_error_cause,
+                    bool packages_needed) {
+    
+    string command = "";
+    if (packages.empty() and packages_needed) {
+        log_error(fmt::format("'{0}' option passed but no {1}(s) provided!\n", subcommand, potential_error_cause));
+                
+        return 1;
+    }
+
+    if (packages_needed)
+        command = fmt::format("{} {} {}", backend_path, arguments, fmt::join(packages, " "));
+    else
+        command = fmt::format("{} {}", backend_path, arguments);
+
+    if (debug_mode)
+        log_debug(fmt::format("Command being run is {}", command));
+
+    return system(command.c_str());
+}
+
+void log_error(const string& message) {
+    fmt::println(stderr,
+                 "{} {}",
+                 fmt::styled("ERROR:", fmt::fg(fmt::color::red) | fmt::emphasis::bold),
+                 message);
+}
+
+void log_debug(const string& message) {
+    fmt::println("DEBUG: {}", message);
+}
+
+void log_info(const string& message) {
+    fmt::println("{} {}",
+                 fmt::styled("INFO:", fmt::fg(fmt::color::cyan)),
+                 message);
+}
+
+string join_command_and_packages_and_ignore_packages(const std::string_view& command,
+                                                     const std::string& subcommand, 
+                                                     const std::vector<std::string>& packages, 
+                                                     const std::vector<std::string>& ignore_packages) {
+    string joined_packages = fmt::format("{}", fmt::join(packages, " "));
+    string joined_ignore_packages = fmt::format("{}", fmt::join(ignore_packages, " "));
+    if (subcommand == "-Syu")
+        return fmt::format("{} {} --ignore {}", command, subcommand, joined_ignore_packages);
+    if (ignore_packages.empty())
+        return fmt::format("{} {} {}", command, subcommand, joined_packages);
+    return fmt::format("{} {} {} --ignore {}", command, subcommand, joined_packages, joined_ignore_packages);
 }

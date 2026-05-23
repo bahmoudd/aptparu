@@ -20,4 +20,6 @@ else
     add_project_arguments('-DBACKEND_PATH="@0@"'.format(pacman.full_path()), language : 'cpp')
 endif
 
-executable('aptparu', 'src/main.cpp', dependencies: [fmt_dep, cli11_dep], install : true)
+inc = include_directories('src')
+
+executable('aptparu', 'src/main.cpp', include_directories: inc, dependencies: [fmt_dep, cli11_dep], install : true)
